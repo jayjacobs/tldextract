@@ -1,0 +1,16 @@
+Package: tldextract
+Type: Package
+Title: Extract top level domain, domain, and subdomain from host name
+Version: 1.0
+Date: 2014-08-02
+Author: Jay Jacobs <jay.jacobs@verizon.com>
+Maintainer: Jay Jacobs <jay.jacobs@verizon.com>
+Description: After working with <https://github.com/john-kurkowski/tldextract>
+    in python, I wanted the same functionality within R.  The list of top level
+    domains are loaded from
+    <https://publicsuffix.org/list/effective_tld_names.dat>.  The data is
+    stored in the package and may need to updated with the getTLD() function.
+License: What license is it under? <tbd>
+Depends:
+    data.table,
+    httr
