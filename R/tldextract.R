@@ -17,7 +17,10 @@
 getTLD <- function(url="https://publicsuffix.org/list/effective_tld_names.dat") {
   rawhttp <- GET(url)
   content <- unlist(strsplit(rawToChar(rawhttp[["content"]]), "\n+"))
-  content[grep("^//", content, invert=T)]
+  tldnames <- content[grep("^//", content, invert=T)]
+  Encoding(tldnames) <- "latin1"
+  tldnames <- iconv(tldnames, "latin1", "UTF-8")
+  tldnames  
 }
 
 #' Extract the top level domain, domain and subdomain from a host name
@@ -34,45 +37,34 @@ getTLD <- function(url="https://publicsuffix.org/list/effective_tld_names.dat") 
 #' return NA for the three components.
 #' 
 #' @param host vector of one or more host names
-#' @param tlds vector of TLD names (see \code{\link{getTLD}})
+#' @param tldnames vector of TLD names (see \code{\link{getTLD}})
 #' @import data.table
 #' @export
 #' @seealso getTLD
 #' @examples
 #' \dontrun{
-#' hosts <- tldextract(c("www.google.com", "testing.co.uk"), tlds=getTLD())
+#' hosts <- tldextract(c("www.google.com", "testing.co.uk"), tldnames=getTLD())
 #' }
-tldextract <- function(host, tlds=NULL) {
-  if (missing(tlds)) {
-#     if(exists("tldnames") && is.data.frame(tldnames)) {
-#       tlds <- tldnames
-#     } else {
-      data("tldnames", envir = environment())
-#    }
+tldextract <- function(host, tldnames=NULL) {
+  if (missing(tldnames)) {
+    data("tldnames", envir = environment())
   }
-  # http://stackoverflow.com/questions/11486369/growing-a-data-frame-in-a-memory-efficient-manner
-  # set up the data.table
-  core <- data.table(host=host, tld=NA_character_, domain=NA_character_, subdomain=NA_character_)
+  tl2 <- sub('[*]', "[^.]+", paste0(tldnames,"$"))
+  core <- data.table(host=host, subdomain=NA_character_, domain=NA_character_, tld=NA_character_)
   for(i in seq_along(host)) {
-    # extract raw elements of host name
-    raw <- unlist(strsplit(host[i], "[.]"))
-    # may not get subdomain
-    subdomain <- domain <- suffix <- NA_character_
-    # loop from 2 to the # of elements in host name
-    for(tld in seq(2, length(raw))) {
-      this.tld <- paste(raw[tld:length(raw)], collapse=".")
-      if(this.tld %in% tlds) { # if it is a TLD
-        if (tld > 2) { # then get the subdomain if exists
-          subdomain <- paste(head(raw, tld-2), collapse=".")
-        } # and pull domain and TLD
-        domain <- paste(raw[tld-1], collapse=".")
-        suffix <- this.tld
-        break
-      }
+    thisip <- host[i]
+    # loop on all the TLD's comparing to this
+    allmatch <- sapply(tl2, regexec, thisip, ignore.case=T)
+    # pull out the match point of the first one
+    skips <- min(unlist(allmatch[allmatch>0]))
+    # that's the TLD
+    set(core, i, 4L, substring(thisip, skips)) # suffix
+    # now grab everything else and dig for domain and subdomain
+    therest <- unlist(strsplit(substring(thisip, 1, skips-2), "[.]"))
+    set(core, i, 3L, therest[length(therest)])
+    if(length(therest) > 1) {
+      set(core, i, 2L, paste(therest[1:length(therest)-1], collapse=".")) 
     }
-    set(core, i, 2L, subdomain) 
-    set(core, i, 3L, domain)
-    set(core, i, 4L, suffix)
   }
   as.data.frame(core)
 }
@@ -91,3 +83,16 @@ tldextract <- function(host, tlds=NULL) {
 #' @format A vector containing the top level domains
 #' @name tldnames
 NULL
+
+# tests <- c(
+#   "tinong.net", "mdotm.co", "softbank.ne.jp", "mundopositivo.com.br",
+#   "pianomedia.eu", "elasticad.net", "dowload.vn", "afx.ms", "sspicy.ru",
+#   "crosspixel.net", "alarabiya.net", "kijiji.net", "pubx.ch", "webads.it",
+#   "cinergroup.com.tr", "upu.int", "r10.io", "baixarfilmesdublados.net",
+#   "yjtag.jp", "easytaxi.com.br", "makeameme.org", "oveloker.eu", "ulabs.me",
+#   "datingfactory.net", "arcor.de", "akam.net", "comporium.net",
+#   "metadrol.pl", "getmyip.org", "getspeedofit2014.co.uk",
+#   "caixa2014.com.br", "vivo.com.br", "zol.com.cn", "partiuviagens.com.br",
+#   "livefreefuns.net", "zen.co.uk", "bungie.net", "cursos24horas.com.br",
+#   "econda-monitor.de", "costco.ca")
+

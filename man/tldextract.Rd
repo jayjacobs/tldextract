@@ -3,12 +3,12 @@
 \alias{tldextract}
 \title{Extract the top level domain, domain and subdomain from a host name}
 \usage{
-tldextract(host, tlds = NULL)
+tldextract(host, tldnames = NULL)
 }
 \arguments{
 \item{host}{vector of one or more host names}
 
-\item{tlds}{vector of TLD names (see \code{\link{getTLD}})}
+\item{tldnames}{vector of TLD names (see \code{\link{getTLD}})}
 }
 \description{
 Given one or more host names, this will return a data frame with four column:
@@ -25,7 +25,7 @@ return NA for the three components.
 }
 \examples{
 \dontrun{
-hosts <- tldextract(c("www.google.com", "testing.co.uk"), tlds=getTLD())
+hosts <- tldextract(c("www.google.com", "testing.co.uk"), tldnames=getTLD())
 }
 }
 \seealso{

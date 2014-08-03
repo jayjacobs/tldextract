@@ -10,6 +10,8 @@ A dataset containing a single vector of the top-level domain names as retrevied 
 }
 \details{
 This can manually refreshed upon library load with the \code{\link{getTLD}} function.
+
+Note, the non-ASCII characters may create a problem, and needs more testing.
 }
 \keyword{datasets}
 
