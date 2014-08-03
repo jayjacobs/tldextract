@@ -1,6 +1,6 @@
 ---
 title: "README"
-output: html_document
+output: md_document
 ---
 
 After working with <https://github.com/john-kurkowski/tldextract> in python, I wanted the same functionality within R.  The list of top level domains can be automatically loaded from <https://publicsuffix.org/list/effective_tld_names.dat>.  A cached version of the data is stored in the package.  
