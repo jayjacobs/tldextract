@@ -32,11 +32,17 @@ To install this package, use the devtools package:
     ## 3     googlemaps.ca      <NA> googlemaps     ca
     ## 4    tbn0.google.cn      tbn0     google     cn
 
+The specification for the top-level domains is cached in the package and
+is viewable.
+
     # view and update the TLD domains list in the tldnames data
     data(tldnames)
     head(tldnames)
 
     ## [1] "ac"     "com.ac" "edu.ac" "gov.ac" "net.ac" "mil.ac"
+
+If the cached version is out of data and the package isn't updated, the
+data can be manually loaded, and then passed into the function.
 
     # get most recent TLD listings
     tld <- getTLD() # optionally pass in a different URL than the default

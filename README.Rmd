@@ -21,11 +21,19 @@ tldextract("www.google.com")
 
 # it can take multiple domains at the same time
 tldextract(c("www.google.com", "www.google.com.ar", "googlemaps.ca", "tbn0.google.cn"))
+```
 
+The specification for the top-level domains is cached in the package and is viewable.
+
+```{r}
 # view and update the TLD domains list in the tldnames data
 data(tldnames)
 head(tldnames)
+```
 
+If the cached version is out of data and the package isn't updated, the data can be manually loaded, and then passed into the \code{tldextract} function.
+
+```{r}
 # get most recent TLD listings
 tld <- getTLD() # optionally pass in a different URL than the default
 manyhosts <- c("pages.parts.marionautomotive.com", "www.embroiderypassion.com", 

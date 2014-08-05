@@ -10,7 +10,9 @@ Description: After working with <https://github.com/john-kurkowski/tldextract>
     domains are loaded from
     <https://publicsuffix.org/list/effective_tld_names.dat>.  The data is
     stored in the package and may need to updated with the getTLD() function.
-License: What license is it under? <tbd>
+License: MIT
 Depends:
     data.table,
     httr
+Suggests:
+    testthat
