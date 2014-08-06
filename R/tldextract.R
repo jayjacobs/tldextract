@@ -49,24 +49,44 @@ tldextract <- function(host, tldnames=NULL) {
   if (missing(tldnames)) {
     data("tldnames", envir = environment())
   }
-  tl2 <- sub('[*]', "[^.]+", paste0(tldnames,"$"))
-  core <- data.table(host=host, subdomain=NA_character_, domain=NA_character_, tld=NA_character_)
-  for(i in seq_along(host)) {
-    thisip <- host[i]
-    # loop on all the TLD's comparing to this
-    allmatch <- sapply(tl2, regexec, thisip, ignore.case=T)
-    # pull out the match point of the first one
-    skips <- min(unlist(allmatch[allmatch>0]))
-    # that's the TLD
-    set(core, i, 4L, substring(thisip, skips)) # suffix
-    # now grab everything else and dig for domain and subdomain
-    therest <- unlist(strsplit(substring(thisip, 1, skips-2), "[.]"))
-    set(core, i, 3L, therest[length(therest)])
-    if(length(therest) > 1) {
-      set(core, i, 2L, paste(therest[1:length(therest)-1], collapse=".")) 
+  wilds <- grepl('^\\*', tldnames)
+  wildcard <- sub('\\*\\.', "", tldnames[wilds]) 
+  static <- tldnames[!wilds]
+  
+  subdomain <- domain <- tld <- rep(NA_character_, length(host))
+  splithosts <- strsplit(host, "[.]")
+  names(splithosts) <- seq(length(splithosts))
+  maxlen <- max(sapply(splithosts, length))
+  for(split.after in seq(1, maxlen-1)) {
+    templ <- sapply(splithosts, function(x)
+      paste0(x[(split.after+1):length(x)], collapse=".")
+    )
+    matched <- templ %in% static
+    if (any(matched)) {
+      index <- as.numeric(names(splithosts)[matched])
+      if (split.after>1) {
+        subdomain[index] <- sapply(splithosts[matched], function(x) paste(x[1:(split.after-1)], collapse="."))
+      }
+      domain[index] <- sapply(splithosts[matched], function(x) unlist(x[split.after]))
+      tld[index] <- sapply(splithosts[matched], function(x) paste(x[(split.after+1):length(x)], collapse="."))
     }
-  }
-  as.data.frame(core)
+    # now the wildcard
+    matched2 <- templ %in% wildcard
+    if (any(matched2) && split.after > 1) {
+      safter <-  split.after - 1
+      index <- as.numeric(names(splithosts)[matched2])
+      if (safter>1) {
+        subdomain[index] <- sapply(splithosts[matched2], function(x) paste(x[1:(safter-1)], collapse="."))
+      }
+      domain[index] <- sapply(splithosts[matched2], function(x) x[safter])
+      tld[index] <- sapply(splithosts[matched2], function(x) paste(x[(safter+1):length(x)], collapse="."))
+    }
+    if (any(matched2 | matched)) {
+      splithosts <- splithosts[!(matched | matched2)]
+      if(length(splithosts)<1) break
+    }
+  }  
+  data.frame(host=host, subdomain=subdomain, domain=domain, tld=tld, stringsAsFactors=F)
 }
 
 #' List of Top-Level Domains Names
@@ -83,16 +103,3 @@ tldextract <- function(host, tldnames=NULL) {
 #' @format A vector containing the top level domains
 #' @name tldnames
 NULL
-
-# tests <- c(
-#   "tinong.net", "mdotm.co", "softbank.ne.jp", "mundopositivo.com.br",
-#   "pianomedia.eu", "elasticad.net", "dowload.vn", "afx.ms", "sspicy.ru",
-#   "crosspixel.net", "alarabiya.net", "kijiji.net", "pubx.ch", "webads.it",
-#   "cinergroup.com.tr", "upu.int", "r10.io", "baixarfilmesdublados.net",
-#   "yjtag.jp", "easytaxi.com.br", "makeameme.org", "oveloker.eu", "ulabs.me",
-#   "datingfactory.net", "arcor.de", "akam.net", "comporium.net",
-#   "metadrol.pl", "getmyip.org", "getspeedofit2014.co.uk",
-#   "caixa2014.com.br", "vivo.com.br", "zol.com.cn", "partiuviagens.com.br",
-#   "livefreefuns.net", "zen.co.uk", "bungie.net", "cursos24horas.com.br",
-#   "econda-monitor.de", "costco.ca")
-

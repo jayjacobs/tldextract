@@ -16,7 +16,6 @@ test_that("checks multiple hostname", {
               "pianomedia", "cinergroup", "baixarfilmesdublados")
   tld <- c("net", "co", "ne.jp", "com.br", "eu", "com.tr", "net")
   hostexpect <- data.frame(host=hosts, subdomain=subdomain,
-                            domain=domain, tld=tld,
-                            stringsAsFactors=F)
+                            domain=domain, tld=tld, stringsAsFactors=F)
   expect_identical(tldextract(hosts), hostexpect)
 })
