@@ -1,12 +1,12 @@
 #' Retrieve a current list of the top level domains
-#' 
-#' This function will reach out to \url{https://publicsuffix.org/list/effective_tld_names.dat}, 
+#'
+#' This function will reach out to \url{https://publicsuffix.org/list/effective_tld_names.dat},
 #' retrieve the contents and create a simple vector of all the top level domains (removing
-#' comments and blanks lines from the file).  
-#' 
+#' comments and blanks lines from the file).
+#'
 #' If there is no network connectivity, a cached version of the data ("tldnames") is included with
 #' this package and can be loaded with \code{data("tldnames")} after loading this package.
-#' 
+#'
 #' @param url URL of the location for the tld name authority
 #' @import httr
 #' @export
@@ -20,11 +20,11 @@ getTLD <- function(url="https://publicsuffix.org/list/effective_tld_names.dat") 
   tldnames <- content[grep("^//", content, invert=T)]
   Encoding(tldnames) <- "latin1"
   tldnames <- iconv(tldnames, "latin1", "UTF-8")
-  tldnames  
+  tldnames
 }
 
 #' Extract the top level domain, domain and subdomain from a host name
-#' 
+#'
 #' Given one or more host names, this will return a data frame with four column:
 #' \itemize{
 #' \item "host": the original host name
@@ -32,10 +32,10 @@ getTLD <- function(url="https://publicsuffix.org/list/effective_tld_names.dat") 
 #' \item "domain" the domain extracted
 #' \item "subdomain" one or more subdomains prepending the domain
 #' }
-#' 
-#' If a hostname is not understandable (no top level domain is matched), it will 
+#'
+#' If a hostname is not understandable (no top level domain is matched), it will
 #' return NA for the three components.
-#' 
+#'
 #' @param host vector of one or more host names
 #' @param tldnames vector of TLD names (see \code{\link{getTLD}})
 #' @import data.table
@@ -50,11 +50,11 @@ tldextract <- function(host, tldnames=NULL) {
     data("tldnames", envir = environment())
   }
   wilds <- grepl('^\\*', tldnames)
-  wildcard <- sub('\\*\\.', "", tldnames[wilds]) 
+  wildcard <- sub('\\*\\.', "", tldnames[wilds])
   static <- tldnames[!wilds]
-  
+
   subdomain <- domain <- tld <- rep(NA_character_, length(host))
-  splithosts <- strsplit(host, "[.]")
+  splithosts <- strsplit(tolower(host), "[.]")
   names(splithosts) <- seq(length(splithosts))
   maxlen <- max(sapply(splithosts, length))
   for(split.after in seq(1, maxlen-1)) {
@@ -85,19 +85,19 @@ tldextract <- function(host, tldnames=NULL) {
       splithosts <- splithosts[!(matched | matched2)]
       if(length(splithosts)<1) break
     }
-  }  
+  }
   data.frame(host=host, subdomain=subdomain, domain=domain, tld=tld, stringsAsFactors=F)
 }
 
 #' List of Top-Level Domains Names
-#' 
+#'
 #' A dataset containing a single vector of the top-level domain names as retrevied from
 #' \url{https://publicsuffix.org/list/effective_tld_names.dat} on August 2, 2014.
-#' 
+#'
 #'  This can manually refreshed upon library load with the \code{\link{getTLD}} function.
-#'  
+#'
 #'  Note, the non-ASCII characters may create a problem, and needs more testing.
-#' 
+#'
 #' @docType data
 #' @keywords datasets
 #' @format A vector containing the top level domains
