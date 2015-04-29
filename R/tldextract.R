@@ -1,26 +1,30 @@
-#' Retrieve a current list of the top level domains
+#' @title Retrieve a current list of the top level domains
 #'
-#' This function will reach out to \url{https://publicsuffix.org/list/effective_tld_names.dat},
+#' @description This function will reach out to \url{https://publicsuffix.org/list/effective_tld_names.dat},
 #' retrieve the contents and create a simple vector of all the top level domains (removing
 #' comments and blanks lines from the file).
 #'
 #' If there is no network connectivity, a cached version of the data ("tldnames") is included with
 #' this package and can be loaded with \code{data("tldnames")} after loading this package.
 #'
-#' @param url URL of the location for the tld name authority
-#' @import httr
+#' @param url URL of the location for the tld name authority. Set to point to publicsuffix.org
+#' by default; while you can change this, much of \code{getTLD}'s internal parsing may be
+#' specific to publicsuffix.org's format, and so other URLs may actively break or produce
+#' oddly formated results
+#' 
+#' @importFrom httr GET content user_agent stop_for_status
 #' @export
 #' @examples
 #' \dontrun{
 #' tldnames <- getTLD()
 #' }
-getTLD <- function(url="https://publicsuffix.org/list/effective_tld_names.dat") {
-  rawhttp <- GET(url)
-  content <- unlist(strsplit(rawToChar(rawhttp[["content"]]), "\n+"))
-  tldnames <- content[grep("^//", content, invert=T)]
-  Encoding(tldnames) <- "latin1"
-  tldnames <- iconv(tldnames, "latin1", "UTF-8")
-  tldnames
+getTLD <- function(url = "https://publicsuffix.org/list/effective_tld_names.dat") {
+  raw_results <- GET(url, user_agent("tldextract - https://github.com/jayjacobs/tldextract"))
+  stop_for_status(raw_results)
+  parsed_results <- unlist(strsplit(content(raw_results, as = "text"),"\n+"))
+  tldnames <- parsed_results[grep(pattern = "^//", x = parsed_results, invert = TRUE)]
+  tldnames <- iconv(tldnames, to = "UTF-8")
+  return(tldnames)
 }
 
 #' Extract the top level domain, domain and subdomain from a host name
@@ -89,7 +93,7 @@ tldextract <- function(host, tldnames=NULL) {
   data.frame(host=host, subdomain=subdomain, domain=domain, tld=tld, stringsAsFactors=F)
 }
 
-#' List of Top-Level Domains Names
+#' List of Top-Level Domain Names
 #'
 #' A dataset containing a single vector of the top-level domain names as retrevied from
 #' \url{https://publicsuffix.org/list/effective_tld_names.dat} on August 2, 2014.
