@@ -1,4 +1,4 @@
-# Important: This is not active see [https://cran.r-project.org/web/packages/urltools/index.html](urltools)
+# Important: This is not active see [urltools](https://cran.r-project.org/web/packages/urltools/index.html)
 
 This package is no longer active.  All of the functionality has been integrated into the `urltools` package:
 https://cran.r-project.org/web/packages/urltools/index.html
