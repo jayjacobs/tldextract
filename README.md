@@ -1,10 +1,10 @@
-# Important
+# Important: This is not active see [https://cran.r-project.org/web/packages/urltools/index.html](urltools)
 
 This package is no longer active.  All of the functionality has been integrated into the `urltools` package:
 https://cran.r-project.org/web/packages/urltools/index.html
 
 
-### Previous Readme:
+# Original docs on this unmaintained version:
 
 After working with <https://github.com/john-kurkowski/tldextract> in
 python, I wanted the same functionality within R. The list of top level
