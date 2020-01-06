@@ -1,3 +1,10 @@
+This package is no longer active.  All of the functionality has been integrated into the `urltools` package:
+https://cran.r-project.org/web/packages/urltools/index.html
+
+
+
+
+
 After working with <https://github.com/john-kurkowski/tldextract> in
 python, I wanted the same functionality within R. The list of top level
 domains can be automatically loaded from
